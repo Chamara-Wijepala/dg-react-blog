@@ -1,7 +1,13 @@
-function Home() {
+import Feed from '../components/Feed';
+
+function Home({ posts }) {
 	return (
-		<main>
-			<div>Home</div>
+		<main className="Home">
+			{posts.length ? (
+				<Feed posts={posts} />
+			) : (
+				<p style={{ marginTop: '2rem' }}>No posts to display</p>
+			)}
 		</main>
 	);
 }
