@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import api from './api/posts';
+import useWindowSize from './hooks/useWindowSize';
+import useAxiosFetch from './hooks/useAxiosFetch';
 import Header from './components/Header';
 import Nav from './components/Nav';
 import Footer from './components/Footer';
@@ -21,6 +23,10 @@ function App() {
 	const [editTitle, setEditTitle] = useState('');
 	const [editBody, setEditBody] = useState('');
 	const navigate = useNavigate();
+	const { width } = useWindowSize();
+	const { data, fetchError, isLoading } = useAxiosFetch(
+		'http://localhost:5500/posts'
+	);
 
 	async function handleDelete(id) {
 		try {
@@ -82,6 +88,12 @@ function App() {
 	}, [posts, search]);
 
 	useEffect(() => {
+		setPosts(data);
+	}, [data]);
+
+	/*
+
+	useEffect(() => {
 		async function fetchPosts() {
 			try {
 				const response = await api.get('/posts');
@@ -100,13 +112,24 @@ function App() {
 		fetchPosts();
 	}, []);
 
+	*/
+
 	return (
 		<div className="App">
-			<Header title="React JS Blog" />
+			<Header title="React JS Blog" width={width} />
 			<Nav search={search} setSearch={setSearch} />
 
 			<Routes>
-				<Route path="/" element={<Home posts={searchResults} />} />
+				<Route
+					path="/"
+					element={
+						<Home
+							posts={searchResults}
+							fetchError={fetchError}
+							isLoading={isLoading}
+						/>
+					}
+				/>
 				<Route
 					path="/post"
 					element={
