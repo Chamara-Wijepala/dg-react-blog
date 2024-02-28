@@ -1,32 +1,27 @@
-import { useState, useEffect, useContext } from 'react';
+import { useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useStoreState, useStoreActions } from 'easy-peasy';
 import { format } from 'date-fns';
-import api from '../api/posts';
-import DataContext from '../context/DataContext';
 
 function EditPost() {
-	const [editTitle, setEditTitle] = useState('');
-	const [editBody, setEditBody] = useState('');
-	const { posts, setPosts } = useContext(DataContext);
 	const { id } = useParams();
 	const navigate = useNavigate();
-	const post = posts.find((post) => post.id.toString() === id);
 
-	async function handleEdit(id) {
+	const editTitle = useStoreState((state) => state.editTitle);
+	const editBody = useStoreState((state) => state.editBody);
+	const editPost = useStoreActions((actions) => actions.editPost);
+	const setEditTitle = useStoreActions((actions) => actions.setEditTitle);
+	const setEditBody = useStoreActions((actions) => actions.setEditBody);
+
+	const getPostById = useStoreState((state) => state.getPostById);
+	const post = getPostById(id);
+
+	function handleEdit(id) {
 		const datetime = format(new Date(), 'MMMM dd, yyyy pp');
 		const updatedPost = { id, title: editTitle, datetime, body: editBody };
 
-		try {
-			const response = await api.put(`/posts/${id}`, updatedPost);
-			setPosts(
-				posts.map((post) => (post.id === id ? { ...response.data } : post))
-			);
-			setEditTitle('');
-			setEditBody('');
-			navigate('/');
-		} catch (error) {
-			console.log(`Error: ${error.message}`);
-		}
+		editPost(updatedPost);
+		navigate(`/post/${id}`);
 	}
 
 	useEffect(() => {
